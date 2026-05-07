@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BeEF Pro Panel</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c0c; color: #33ff33; padding: 20px; }
+        .terminal { border: 1px solid #33ff33; height: 300px; overflow-y: scroll; padding: 10px; background: #000; margin-bottom: 20px; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { background: #111; color: #33ff33; border: 1px solid #33ff33; padding: 10px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #33ff33; color: #000; }
+        .timestamp { color: #888; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <h2>BEEF SIMULATOR - C2 DASHBOARD</h2>
+    
+    <div class="terminal" id="terminal">
+        [+] Sistem başlatıldı. Dinleniyor...<br>
+    </div>
+
+    <div class="controls">
+        <button onclick="issue('GET_INFO')">Sistem Bilgisi Al</button>
+        <button onclick="issue('PHISHING')">Phishing (Şifre Sor)</button>
+        <button onclick="issue('CHANGE_UI')">Arayüzü Değiştir</button>
+        <button onclick="issue('REDIRECT', 'https://www.google.com')">Google'a Yönlendir</button>
+    </div>
+
+    <script>
+        const channel = new BroadcastChannel('beef_channel');
+        const term = document.getElementById('terminal');
+
+        // Kurbandan gelen verileri terminale yaz
+        channel.onmessage = (event) => {
+            if (event.data.type === 'log') {
+                const now = new Date().toLocaleTimeString();
+                term.innerHTML += `<div><span class="timestamp">[${now}]</span> ${event.data.data}</div>`;
+                term.scrollTop = term.scrollHeight;
+            }
+        };
+
+        function issue(cmd, val = null) {
+            channel.postMessage({ command: cmd, value: val });
+            term.innerHTML += `<div style="color:white;">[>] Komut gönderildi: ${cmd}</div>`;
+        }
+    </script>
+</body>
+</html>
